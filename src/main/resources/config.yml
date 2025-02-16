@@ -6,6 +6,9 @@
 #   - type: Type of schedule (INTERVAL, HOURLY, DAILY, WEEKLY)
 #   - enabled: Whether the task should start automatically
 #   - world, x, y, z: Optional location for region-specific tasks (Folia)
+#   - conditions: Optional conditions for task execution
+#     - min_players: Minimum number of players required (optional)
+#     - max_players: Maximum number of players allowed (optional)
 #
 # Schedule type specific properties:
 #   INTERVAL:
@@ -24,18 +27,25 @@ tasks:
     type: INTERVAL
     interval: 6000  # 5 minutes
     enabled: false
+    conditions:
+      min_players: 5  # Only execute when 5 or more players are online
 
   example_hourly:
     command: "broadcast It's a new hour!"
     type: HOURLY
     minute: 0  # Execute at the start of each hour
     enabled: false
+    conditions:
+      max_players: 10  # Only execute when 10 or fewer players are online
 
   example_daily:
     command: "broadcast Good morning!"
     type: DAILY
     time: "09:00"  # Execute at 9 AM
     enabled: false
+    conditions:
+      min_players: 1  # Only execute when at least 1 player is online
+      max_players: 50  # And no more than 50 players
 
   example_weekly:
     command: "broadcast Weekly maintenance in 1 hour!"

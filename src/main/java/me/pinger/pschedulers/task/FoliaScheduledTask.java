@@ -21,12 +21,20 @@ public class FoliaScheduledTask extends BaseScheduledTask {
             if (getLocation() != null) {
                 task = Bukkit.getServer().getRegionScheduler()
                     .runAtFixedRate(getPlugin(), getLocation(),
-                        (scheduledTask) -> onExecute(),
+                        (scheduledTask) -> {
+                            if (canExecute()) {
+                                onExecute();
+                            }
+                        },
                         0L, getScheduleConfig().getIntervalTicks());
             } else {
                 task = Bukkit.getServer().getGlobalRegionScheduler()
                     .runAtFixedRate(getPlugin(),
-                        (scheduledTask) -> onExecute(),
+                        (scheduledTask) -> {
+                            if (canExecute()) {
+                                onExecute();
+                            }
+                        },
                         0L, getScheduleConfig().getIntervalTicks());
             }
         } else {
@@ -46,26 +54,34 @@ public class FoliaScheduledTask extends BaseScheduledTask {
 
         if (getLocation() != null) {
             task = Bukkit.getServer().getRegionScheduler()
-                .runDelayed(getPlugin(), getLocation(), (scheduledTask) -> {
-                    // Exécuter la tâche
-                    onExecute();
-                    
-                    // Si la tâche est toujours active, planifier la prochaine exécution
-                    if (isRunning()) {
-                        scheduleNextExecution();
-                    }
-                }, delayTicks);
+                .runDelayed(getPlugin(), getLocation(),
+                    (scheduledTask) -> {
+                        // Exécuter la tâche si les conditions sont remplies
+                        if (canExecute()) {
+                            onExecute();
+                        }
+                        
+                        // Si la tâche est toujours active, planifier la prochaine exécution
+                        if (isRunning()) {
+                            scheduleNextExecution();
+                        }
+                    },
+                    delayTicks);
         } else {
             task = Bukkit.getServer().getGlobalRegionScheduler()
-                .runDelayed(getPlugin(), (scheduledTask) -> {
-                    // Exécuter la tâche
-                    onExecute();
-                    
-                    // Si la tâche est toujours active, planifier la prochaine exécution
-                    if (isRunning()) {
-                        scheduleNextExecution();
-                    }
-                }, delayTicks);
+                .runDelayed(getPlugin(),
+                    (scheduledTask) -> {
+                        // Exécuter la tâche si les conditions sont remplies
+                        if (canExecute()) {
+                            onExecute();
+                        }
+                        
+                        // Si la tâche est toujours active, planifier la prochaine exécution
+                        if (isRunning()) {
+                            scheduleNextExecution();
+                        }
+                    },
+                    delayTicks);
         }
     }
 
@@ -79,7 +95,14 @@ public class FoliaScheduledTask extends BaseScheduledTask {
 
     @Override
     protected void onExecute() {
-        // Pour Folia, nous sommes déjà dans le bon contexte de thread
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), getCommand());
+        if (getLocation() != null) {
+            Bukkit.getServer().getRegionScheduler()
+                .run(getPlugin(), getLocation(),
+                    (scheduledTask) -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), getCommand()));
+        } else {
+            Bukkit.getServer().getGlobalRegionScheduler()
+                .run(getPlugin(),
+                    (scheduledTask) -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), getCommand()));
+        }
     }
 } 

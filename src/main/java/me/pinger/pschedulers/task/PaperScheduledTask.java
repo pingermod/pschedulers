@@ -20,7 +20,11 @@ public class PaperScheduledTask extends BaseScheduledTask {
             // Pour le type INTERVAL, on utilise le comportement existant
             task = Bukkit.getScheduler().runTaskTimer(
                 getPlugin(), 
-                this::onExecute, 
+                () -> {
+                    if (canExecute()) {
+                        onExecute();
+                    }
+                }, 
                 0L, 
                 getScheduleConfig().getIntervalTicks()
             );
@@ -40,8 +44,10 @@ public class PaperScheduledTask extends BaseScheduledTask {
         }
 
         task = Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
-            // Exécuter la tâche
-            onExecute();
+            // Exécuter la tâche si les conditions sont remplies
+            if (canExecute()) {
+                onExecute();
+            }
             
             // Si la tâche est toujours active, planifier la prochaine exécution
             if (isRunning()) {

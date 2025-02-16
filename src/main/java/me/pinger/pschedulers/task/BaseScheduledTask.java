@@ -66,4 +66,12 @@ public abstract class BaseScheduledTask implements ScheduledTask {
     protected long getNextExecutionTime() {
         return scheduleConfig.getNextExecutionTime();
     }
+
+    /**
+     * Checks if the task can be executed based on its conditions
+     * @return true if the task can be executed, false otherwise
+     */
+    protected boolean canExecute() {
+        return scheduleConfig.getConditions().areMet();
+    }
 } 

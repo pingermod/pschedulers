@@ -5,6 +5,7 @@ import me.pinger.pschedulers.api.task.ScheduledTask;
 import me.pinger.pschedulers.manager.TaskManager;
 import me.pinger.pschedulers.scheduler.ScheduleConfig;
 import me.pinger.pschedulers.scheduler.ScheduleType;
+import me.pinger.pschedulers.scheduler.TaskConditions;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -71,6 +72,18 @@ public class TaskConfig {
                     break;
             }
             
+            // Save conditions
+            TaskConditions conditions = scheduleConfig.getConditions();
+            if (conditions.getMinPlayers() != null || conditions.getMaxPlayers() != null) {
+                ConfigurationSection conditionsSection = taskSection.createSection("conditions");
+                if (conditions.getMinPlayers() != null) {
+                    conditionsSection.set("min_players", conditions.getMinPlayers());
+                }
+                if (conditions.getMaxPlayers() != null) {
+                    conditionsSection.set("max_players", conditions.getMaxPlayers());
+                }
+            }
+            
             if (task.getLocation() != null) {
                 Location loc = task.getLocation();
                 taskSection.set("world", loc.getWorld().getName());
@@ -107,14 +120,34 @@ public class TaskConfig {
                 }
             }
 
+            // Load conditions
+            TaskConditions.TaskConditionsBuilder conditionsBuilder = TaskConditions.builder();
+            ConfigurationSection conditionsSection = taskSection.getConfigurationSection("conditions");
+            if (conditionsSection != null) {
+                if (conditionsSection.contains("min_players")) {
+                    conditionsBuilder.minPlayers(conditionsSection.getInt("min_players"));
+                }
+                if (conditionsSection.contains("max_players")) {
+                    conditionsBuilder.maxPlayers(conditionsSection.getInt("max_players"));
+                }
+            }
+
             ScheduleConfig scheduleConfig;
             switch (type) {
                 case INTERVAL:
-                    scheduleConfig = ScheduleConfig.createInterval(taskSection.getLong("interval", 20L));
+                    scheduleConfig = ScheduleConfig.builder()
+                        .type(ScheduleType.INTERVAL)
+                        .intervalTicks(taskSection.getLong("interval", 20L))
+                        .conditions(conditionsBuilder.build())
+                        .build();
                     break;
                     
                 case HOURLY:
-                    scheduleConfig = ScheduleConfig.createHourly(taskSection.getInt("minute", 0));
+                    scheduleConfig = ScheduleConfig.builder()
+                        .type(ScheduleType.HOURLY)
+                        .minute(taskSection.getInt("minute", 0))
+                        .conditions(conditionsBuilder.build())
+                        .build();
                     break;
                     
                 case DAILY:
@@ -122,7 +155,11 @@ public class TaskConfig {
                         taskSection.getString("time", "00:00"),
                         TIME_FORMAT
                     );
-                    scheduleConfig = ScheduleConfig.createDaily(dailyTime);
+                    scheduleConfig = ScheduleConfig.builder()
+                        .type(ScheduleType.DAILY)
+                        .time(dailyTime)
+                        .conditions(conditionsBuilder.build())
+                        .build();
                     break;
                     
                 case WEEKLY:
@@ -137,7 +174,12 @@ public class TaskConfig {
                     if (days.isEmpty()) {
                         days.add(DayOfWeek.MONDAY);
                     }
-                    scheduleConfig = ScheduleConfig.createWeekly(days, weeklyTime);
+                    scheduleConfig = ScheduleConfig.builder()
+                        .type(ScheduleType.WEEKLY)
+                        .days(days)
+                        .weeklyTime(weeklyTime)
+                        .conditions(conditionsBuilder.build())
+                        .build();
                     break;
                     
                 default:

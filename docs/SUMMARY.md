@@ -11,6 +11,7 @@
 ## Fonctionnalités avancées
 * [Support Folia](advanced/folia.md)
 * [Tâches régionales](advanced/regional-tasks.md)
+* [Conditions d'exécution](advanced/conditions.md)
 * [Validation et formatage](advanced/validation.md)
 
 ## Développement

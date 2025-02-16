@@ -37,26 +37,33 @@ Configuration des tâches planifiées.
 
 ```yaml
 tasks:
-  # Exemple de tâche à intervalle
+  # Exemple de tâche à intervalle avec condition de joueurs
   backup:
     command: "backup world"
     type: INTERVAL
     interval: 72000         # 1 heure (en ticks)
     enabled: true
+    conditions:
+      min_players: 5        # Exécuter seulement si 5+ joueurs sont en ligne
+      max_players: 50       # Exécuter seulement si 50- joueurs sont en ligne
 
-  # Exemple de tâche horaire
+  # Exemple de tâche horaire avec condition minimale
   broadcast:
     command: "broadcast L'heure est passée!"
     type: HOURLY
     minute: 0              # À la minute 0 de chaque heure
     enabled: true
+    conditions:
+      min_players: 1       # Exécuter seulement s'il y a au moins 1 joueur
 
-  # Exemple de tâche quotidienne
+  # Exemple de tâche quotidienne avec condition maximale
   morning:
     command: "time set day"
     type: DAILY
     time: "06:00"          # Tous les jours à 6h
     enabled: true
+    conditions:
+      max_players: 20      # Exécuter seulement s'il y a 20 joueurs ou moins
 
   # Exemple de tâche hebdomadaire
   weekend:
@@ -94,6 +101,38 @@ tasks:
 - `days`: Liste des jours [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
 - `time`: Heure d'exécution (format "HH:mm")
 
+### Conditions d'exécution
+
+Chaque tâche peut avoir des conditions qui doivent être remplies pour que la tâche s'exécute :
+
+#### Conditions de nombre de joueurs
+- `min_players`: Nombre minimum de joueurs requis en ligne
+- `max_players`: Nombre maximum de joueurs autorisés en ligne
+
+Les conditions sont optionnelles. Si aucune condition n'est spécifiée, la tâche s'exécutera sans restriction.
+
+Exemples :
+```yaml
+conditions:
+  min_players: 5    # La tâche ne s'exécute que s'il y a au moins 5 joueurs
+  max_players: 20   # La tâche ne s'exécute que s'il y a 20 joueurs ou moins
+```
+
+Vous pouvez utiliser une seule condition ou les deux ensemble :
+```yaml
+conditions:
+  min_players: 5    # Au moins 5 joueurs requis
+```
+```yaml
+conditions:
+  max_players: 20   # Maximum 20 joueurs autorisés
+```
+```yaml
+conditions:
+  min_players: 5    # Entre 5 et 20 joueurs
+  max_players: 20
+```
+
 ## messages.yml
 
 Personnalisation des messages du plugin.
@@ -127,6 +166,7 @@ PSchedulers valide automatiquement votre configuration au démarrage :
 - Validation des intervalles et des horaires
 - Contrôle des permissions
 - Vérification de la syntaxe des commandes
+- Validation des conditions d'exécution
 
 En cas d'erreur, consultez les logs du serveur pour plus de détails.
 
@@ -144,6 +184,7 @@ Pour recharger la configuration sans redémarrer :
 3. **Permissions** : Limitez l'accès aux commandes administratives
 4. **Performance** : Évitez les intervalles trop courts
 5. **Logs** : Activez le mode debug temporairement en cas de problème
+6. **Conditions** : Utilisez des conditions raisonnables pour le nombre de joueurs
 
 ## Variables disponibles
 
@@ -154,4 +195,5 @@ Dans les commandes, vous pouvez utiliser :
 - `%server%` : Nom du serveur
 - `%world%` : Monde actuel
 - `%task%` : ID de la tâche
-- `%type%` : Type de planification 
+- `%type%` : Type de planification
+- `%players%` : Nombre de joueurs en ligne 

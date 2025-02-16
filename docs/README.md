@@ -14,6 +14,11 @@ PSchedulers est un plugin Minecraft puissant et flexible permettant de planifier
   - 📅 Quotidien (à une heure précise chaque jour)
   - 📆 Hebdomadaire (certains jours à une heure précise)
 
+- **Conditions d'exécution** :
+  - 👥 Nombre minimum de joueurs requis
+  - 📊 Nombre maximum de joueurs autorisés
+  - 🔄 Vérification dynamique des conditions
+
 - **Compatibilité étendue** :
   - ✅ Support complet de Paper
   - ✅ Support natif de Folia avec gestion des régions
@@ -88,18 +93,25 @@ tasks:
     type: INTERVAL
     interval: 6000  # 5 minutes
     enabled: false
+    conditions:
+      min_players: 5  # Exécuter seulement si 5+ joueurs sont en ligne
 
   example_hourly:
     command: "broadcast It's a new hour!"
     type: HOURLY
     minute: 0
     enabled: false
+    conditions:
+      max_players: 20  # Exécuter seulement si 20- joueurs sont en ligne
 
   example_daily:
     command: "broadcast Good morning!"
     type: DAILY
     time: "09:00"
     enabled: false
+    conditions:
+      min_players: 1  # Au moins 1 joueur
+      max_players: 50  # Maximum 50 joueurs
 
   example_weekly:
     command: "broadcast Weekly maintenance!"

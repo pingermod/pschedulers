@@ -29,6 +29,10 @@ public class ScheduleConfig {
     // Pour WEEKLY
     private Set<DayOfWeek> days;
     private LocalTime weeklyTime;
+
+    // Conditions d'exécution
+    @Builder.Default
+    private TaskConditions conditions = TaskConditions.getDefault();
     
     public static ScheduleConfig createInterval(long ticks) {
         return builder()
