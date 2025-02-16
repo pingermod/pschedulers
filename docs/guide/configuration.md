@@ -1,89 +1,67 @@
 # Configuration
 
-PSchedulers utilise plusieurs fichiers de configuration pour gérer ses différentes fonctionnalités. Cette page détaille chaque fichier et ses options.
+PSchedulers utilise un fichier de configuration pour gérer ses tâches planifiées. Cette page détaille toutes les options disponibles.
 
 ## Structure des fichiers
 
 ```
 plugins/PSchedulers/
-├── config.yml
-├── tasks.yml
-└── messages.yml
+└── config.yml
 ```
 
 ## config.yml
 
-Le fichier de configuration principal du plugin.
+Le fichier de configuration principal du plugin contient toutes les tâches planifiées et leurs paramètres.
 
 ```yaml
-# Configuration générale
-debug: false                 # Mode debug pour plus de logs
-timezone: "Europe/Paris"     # Fuseau horaire pour les planifications
-language: "fr"              # Langue des messages (fr, en)
+# PSchedulers Configuration
+# 
+# Tasks are defined in the 'tasks' section below.
+# Each task has the following properties:
+#   - command: The command to execute
+#   - type: Type of schedule (INTERVAL, HOURLY, DAILY, WEEKLY)
+#   - enabled: Whether the task should start automatically
+#   - world, x, y, z: Optional location for region-specific tasks (Folia)
+#   - conditions: Optional conditions for task execution
+#     - min_players: Minimum number of players required (optional)
+#     - max_players: Maximum number of players allowed (optional)
 
-# Configuration des performances
-max_concurrent_tasks: 10     # Nombre maximum de tâches simultanées
-task_timeout: 30            # Timeout en secondes pour les tâches
-
-# Configuration Folia
-folia:
-  enabled: true             # Activer le support Folia
-  region_aware: true        # Activer la gestion des régions
-```
-
-## tasks.yml
-
-Configuration des tâches planifiées.
-
-```yaml
 tasks:
   # Exemple de tâche à intervalle avec condition de joueurs
-  backup:
-    command: "backup world"
+  example_interval:
+    command: "broadcast Hello World!"
     type: INTERVAL
-    interval: 72000         # 1 heure (en ticks)
-    enabled: true
+    interval: 6000         # 5 minutes (en ticks)
+    enabled: false
     conditions:
-      min_players: 5        # Exécuter seulement si 5+ joueurs sont en ligne
-      max_players: 50       # Exécuter seulement si 50- joueurs sont en ligne
+      min_players: 5       # Exécuter seulement si 5+ joueurs sont en ligne
 
-  # Exemple de tâche horaire avec condition minimale
-  broadcast:
-    command: "broadcast L'heure est passée!"
+  # Exemple de tâche horaire avec condition maximale
+  example_hourly:
+    command: "broadcast It's a new hour!"
     type: HOURLY
-    minute: 0              # À la minute 0 de chaque heure
-    enabled: true
+    minute: 0             # À la minute 0 de chaque heure
+    enabled: false
     conditions:
-      min_players: 1       # Exécuter seulement s'il y a au moins 1 joueur
+      max_players: 10     # Exécuter seulement si 10- joueurs sont en ligne
 
-  # Exemple de tâche quotidienne avec condition maximale
-  morning:
-    command: "time set day"
+  # Exemple de tâche quotidienne avec conditions min/max
+  example_daily:
+    command: "broadcast Good morning!"
     type: DAILY
-    time: "06:00"          # Tous les jours à 6h
-    enabled: true
+    time: "09:00"        # Tous les jours à 9h
+    enabled: false
     conditions:
-      max_players: 20      # Exécuter seulement s'il y a 20 joueurs ou moins
+      min_players: 1     # Au moins 1 joueur
+      max_players: 50    # Maximum 50 joueurs
 
   # Exemple de tâche hebdomadaire
-  weekend:
-    command: "broadcast C'est le weekend!"
+  example_weekly:
+    command: "broadcast Weekly maintenance in 1 hour!"
     type: WEEKLY
-    days: [SATURDAY, SUNDAY]
-    time: "10:00"
-    enabled: true
-
-  # Exemple de tâche régionale (Folia)
-  region_broadcast:
-    command: "broadcast Message local"
-    type: INTERVAL
-    interval: 6000
-    location:              # Coordonnées de la région
-      world: "world"
-      x: 0
-      y: 64
-      z: 0
-    enabled: true
+    days: [MONDAY, WEDNESDAY, FRIDAY]
+    time: "20:00"        # À 20h les jours spécifiés
+    enabled: false
 ```
 
 ### Types de tâches
@@ -133,38 +111,12 @@ conditions:
   max_players: 20
 ```
 
-## messages.yml
-
-Personnalisation des messages du plugin.
-
-```yaml
-prefix: "&7[&bPSchedulers&7] "
-messages:
-  task:
-    created: "&aNouvelle tâche créée avec succès : &e%task%"
-    removed: "&cTâche supprimée : &e%task%"
-    started: "&aTâche démarrée : &e%task%"
-    stopped: "&cTâche arrêtée : &e%task%"
-    not_found: "&cTâche introuvable : &e%task%"
-    already_exists: "&cUne tâche avec cet ID existe déjà"
-    invalid_type: "&cType de tâche invalide : &e%type%"
-    
-  command:
-    no_permission: "&cVous n'avez pas la permission d'utiliser cette commande"
-    invalid_syntax: "&cSyntaxe invalide. Utilisez : &e%usage%"
-    
-  scheduler:
-    reloaded: "&aConfiguration rechargée avec succès"
-    error: "&cUne erreur est survenue : &e%error%"
-```
-
 ## Validation
 
 PSchedulers valide automatiquement votre configuration au démarrage :
 
 - Vérification des types de tâches
 - Validation des intervalles et des horaires
-- Contrôle des permissions
 - Vérification de la syntaxe des commandes
 - Validation des conditions d'exécution
 
@@ -174,26 +126,17 @@ En cas d'erreur, consultez les logs du serveur pour plus de détails.
 
 Pour recharger la configuration sans redémarrer :
 
-1. Modifiez les fichiers de configuration
+1. Modifiez le fichier de configuration
 2. Exécutez `/scheduler reload`
 
 ## Bonnes pratiques
 
-1. **Sauvegarde** : Faites une copie de vos fichiers avant modification
+1. **Sauvegarde** : Faites une copie de votre fichier avant modification
 2. **Tests** : Testez vos modifications sur un serveur de développement
-3. **Permissions** : Limitez l'accès aux commandes administratives
-4. **Performance** : Évitez les intervalles trop courts
-5. **Logs** : Activez le mode debug temporairement en cas de problème
-6. **Conditions** : Utilisez des conditions raisonnables pour le nombre de joueurs
+3. **Performance** : Évitez les intervalles trop courts
+4. **Conditions** : Utilisez des conditions raisonnables pour le nombre de joueurs
 
 ## Variables disponibles
 
 Dans les commandes, vous pouvez utiliser :
-
-- `%time%` : Heure actuelle
-- `%date%` : Date actuelle
-- `%server%` : Nom du serveur
-- `%world%` : Monde actuel
-- `%task%` : ID de la tâche
-- `%type%` : Type de planification
 - `%players%` : Nombre de joueurs en ligne 
