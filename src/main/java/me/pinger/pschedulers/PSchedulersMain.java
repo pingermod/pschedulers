@@ -1,36 +1,59 @@
 package me.pinger.pschedulers;
 
 import me.pinger.pschedulers.command.SchedulerCommand;
+import me.pinger.pschedulers.config.PluginSettings;
 import me.pinger.pschedulers.config.TaskConfig;
 import me.pinger.pschedulers.factory.TaskFactory;
+import me.pinger.pschedulers.group.TaskGroup;
 import me.pinger.pschedulers.manager.TaskManager;
+import me.pinger.pschedulers.notification.NotificationEvent;
+import me.pinger.pschedulers.notification.NotificationManager;
+import me.pinger.pschedulers.template.TaskTemplate;
+import me.pinger.pschedulers.variables.VariableManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class PSchedulersMain extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Initialize components
+        // Sauvegarder la configuration par défaut
+        saveDefaultConfig();
+
+        // Initialiser les composants
+        PluginSettings.init(getConfig());
+        NotificationManager.init(getConfig());
+        VariableManager.init(getConfig());
+        TaskTemplate.loadTemplates(getConfig());
+        TaskGroup.loadGroups(getConfig());
+        
         TaskFactory.init(this);
         TaskConfig.init(this);
 
-        // Register command
+        // Enregistrer la commande
         SchedulerCommand command = new SchedulerCommand();
         getCommand("scheduler").setExecutor(command);
         getCommand("scheduler").setTabCompleter(command);
 
-        getLogger().info("PSchedulers has been enabled!");
-        getLogger().info("Running on " + (TaskFactory.isFolia() ? "Folia" : "Paper") + " server.");
+        // Message de démarrage
+        NotificationManager.getInstance().broadcast(
+            "PSchedulers has been enabled! Running on " + 
+            (TaskFactory.isFolia() ? "Folia" : "Paper") + " server.",
+            NotificationEvent.START
+        );
     }
 
     @Override
     public void onDisable() {
-        // Stop all tasks
+        // Arrêter toutes les tâches
         TaskManager.getInstance().stopAllTasks();
         
-        // Save configuration
+        // Sauvegarder la configuration
         TaskConfig.getInstance().saveConfig();
 
-        getLogger().info("PSchedulers has been disabled!");
+        // Message d'arrêt
+        NotificationManager.getInstance().broadcast(
+            "PSchedulers has been disabled!",
+            NotificationEvent.STOP
+        );
     }
 }

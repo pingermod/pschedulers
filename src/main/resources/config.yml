@@ -21,7 +21,146 @@
 #     - days: List of days (MONDAY, TUESDAY, etc.)
 #     - time: Time of day in HH:mm format
 
+# Configuration générale
+settings:
+  debug: false                # Mode debug pour plus de logs
+  timezone: "Europe/Paris"    # Fuseau horaire pour les planifications
+  language: "fr"             # Langue des messages (fr, en)
+  max_concurrent_tasks: 10    # Nombre maximum de tâches simultanées
+
+# Notifications
+notifications:
+  discord:
+    enabled: false
+    webhook_url: ""
+    events: [START, STOP, FAILURE]
+  console:
+    level: INFO              # Niveau de log (INFO, WARNING, ERROR)
+  players:
+    permission: "scheduler.notify"  # Permission pour recevoir les notifications
+
+# Variables personnalisées
+variables:
+  custom_messages:
+    morning: "Bonjour à tous!"
+    evening: "Bonne soirée!"
+  rewards:
+    daily: "diamond 1"
+    weekly: "diamond_block 1"
+  commands:
+    restart_warning:
+      - "broadcast Le serveur redémarre dans {time}"
+      - "title @a title Redémarrage"
+
+# Templates de tâches
+templates:
+  broadcast_template:
+    type: INTERVAL
+    interval: 6000
+    conditions:
+      min_players: 1
+
+# Groupes de tâches
+groups:
+  backup:
+    tasks: [world_backup, player_data_backup]
+    sequential: true        # Exécution séquentielle
+    conditions:
+      min_players: 0
+      tps:
+        min: 18.0
+  
+  morning:
+    tasks: [clear_weather, heal_players, give_morning_bonus]
+    parallel: true         # Exécution parallèle
+
+# Tâches planifiées
 tasks:
+  # Exemple de tâche à intervalle avec conditions avancées
+  world_backup:
+    command: "backup world"
+    type: INTERVAL
+    interval: 72000         # 1 heure (en ticks)
+    enabled: true
+    priority: HIGH          # Priorité haute
+    conditions:
+      min_players: 5
+      max_players: 50
+      weather:
+        type: [CLEAR, RAIN]
+      time:
+        min: 0
+        max: 12000
+      tps:
+        min: 18.0
+      memory:
+        max_usage: 80
+    success_command: "broadcast Sauvegarde terminée!"
+    failure_command: "broadcast La sauvegarde a échoué"
+    retry:
+      attempts: 3
+      delay: 1200
+
+  # Exemple de tâche horaire avec intégration économie
+  reward_distribution:
+    command: "eco give @a 1000"
+    type: HOURLY
+    minute: 0
+    enabled: true
+    conditions:
+      min_players: 10
+      economy:
+        plugin: Vault
+        min_balance: 1000
+
+  # Exemple de tâche quotidienne avec conditions monde
+  morning_routine:
+    command: "time set day"
+    type: DAILY
+    time: "06:00"
+    enabled: true
+    conditions:
+      world_players:
+        world: "world"
+        min: 2
+
+  # Exemple de tâche hebdomadaire avec template
+  weekly_announcement:
+    template: broadcast_template
+    command: "broadcast C'est le weekend!"
+    type: WEEKLY
+    days: [SATURDAY, SUNDAY]
+    time: "10:00"
+    enabled: true
+
+  # Exemple de tâche saisonnière
+  summer_event:
+    command: "broadcast L'événement d'été commence!"
+    type: SEASONAL
+    start_date: "2024-06-21"
+    end_date: "2024-09-21"
+    time: "12:00"
+    enabled: true
+
+  # Exemple de tâche aléatoire
+  random_reward:
+    command: "give @r diamond 1"
+    type: RANDOM
+    min_interval: 6000
+    max_interval: 12000
+    enabled: true
+    conditions:
+      min_players: 5
+
+  # Exemple de tâche avec expression cron
+  server_maintenance:
+    command: "maintenance start"
+    type: CRON
+    expression: "0 0 4 * * ?"  # Tous les jours à 4h du matin
+    enabled: true
+    priority: HIGH
+    override_conditions: true
+
   example_interval:
     command: "broadcast Hello World!"
     type: INTERVAL
