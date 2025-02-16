@@ -1,0 +1,19 @@
+name: PSchedulers
+version: '${project.version}'
+main: me.pinger.pschedulers.PSchedulersMain
+api-version: '1.21'
+description: A powerful task scheduling plugin with Paper and Folia support
+author: Pinger
+website: https://github.com/pinger/pschedulers
+
+commands:
+  scheduler:
+    description: Manage scheduled tasks
+    usage: /scheduler help
+    aliases: [pschedulers, ps]
+    permission: pschedulers.admin
+
+permissions:
+  pschedulers.admin:
+    description: Allows full access to PSchedulers commands
+    default: op

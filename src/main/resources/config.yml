@@ -1,0 +1,45 @@
+# PSchedulers Configuration
+# 
+# Tasks are defined in the 'tasks' section below.
+# Each task has the following properties:
+#   - command: The command to execute
+#   - type: Type of schedule (INTERVAL, HOURLY, DAILY, WEEKLY)
+#   - enabled: Whether the task should start automatically
+#   - world, x, y, z: Optional location for region-specific tasks (Folia)
+#
+# Schedule type specific properties:
+#   INTERVAL:
+#     - interval: Number of ticks between executions (20 ticks = 1 second)
+#   HOURLY:
+#     - minute: Minute of each hour to execute (0-59)
+#   DAILY:
+#     - time: Time of day in HH:mm format
+#   WEEKLY:
+#     - days: List of days (MONDAY, TUESDAY, etc.)
+#     - time: Time of day in HH:mm format
+
+tasks:
+  example_interval:
+    command: "broadcast Hello World!"
+    type: INTERVAL
+    interval: 6000  # 5 minutes
+    enabled: false
+
+  example_hourly:
+    command: "broadcast It's a new hour!"
+    type: HOURLY
+    minute: 0  # Execute at the start of each hour
+    enabled: false
+
+  example_daily:
+    command: "broadcast Good morning!"
+    type: DAILY
+    time: "09:00"  # Execute at 9 AM
+    enabled: false
+
+  example_weekly:
+    command: "broadcast Weekly maintenance in 1 hour!"
+    type: WEEKLY
+    days: [MONDAY, WEDNESDAY, FRIDAY]
+    time: "20:00"  # Execute at 8 PM
+    enabled: false 
