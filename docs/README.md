@@ -4,6 +4,9 @@
 [![GitHub License](https://img.shields.io/github/license/pingermod/pschedulers)](https://github.com/pingermod/pschedulers/blob/main/LICENSE)
 [![Discord](https://img.shields.io/discord/1164397902723022918)](https://discord.gg/3RmVzdMv3d)
 
+> 🌐 **English users**: The English documentation is available [here](en/README.md).  
+> Looking for the English version? [Click here](en/README.md) to access the complete English documentation.
+
 PSchedulers est un plugin Minecraft puissant et flexible permettant de planifier l'exécution automatique de commandes selon différents types de planification. Compatible avec Paper et Folia, il offre une gestion avancée des tâches planifiées avec support des fuseaux horaires et des régions.
 
 ## 🌟 Caractéristiques
